@@ -1,5 +1,0 @@
-flask
-werkzeug
-gunicorn
-requests
-cloudinary
