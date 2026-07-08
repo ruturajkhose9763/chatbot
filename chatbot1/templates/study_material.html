@@ -1,0 +1,58 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Study Material — {{ college.college_name if college else 'College' }}</title>
+<link rel="icon" type="image/png" href="{{ url_for('static', filename='img/college-logo-small.png') }}">
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,600;9..144,700&family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+<style>
+  .sm-wrap { max-width: 960px; margin: 0 auto; padding: 40px 20px 60px; }
+  .sm-header { text-align: center; margin-bottom: 32px; }
+  .sm-header h1 { font-family: 'Fraunces', serif; font-size: 28px; margin-bottom: 6px; }
+  .sm-header p { color: var(--muted); font-size: 14px; }
+  .sm-branch { margin-bottom: 30px; background: var(--surface); border: 1px solid var(--line); border-radius: var(--radius); padding: 20px 24px; }
+  .sm-branch h2 { font-family: 'Fraunces', serif; font-size: 19px; margin-bottom: 14px; color: var(--navy); }
+  .sm-sem { margin-bottom: 14px; }
+  .sm-sem-title { font-weight: 600; font-size: 13.5px; margin-bottom: 6px; }
+  .sm-subject-list { list-style: none; padding: 0; margin: 0; display: flex; flex-wrap: wrap; gap: 8px; }
+  .sm-subject-list li { background: var(--surface-2); border-radius: 6px; padding: 6px 10px; font-size: 13px; }
+  .sm-link-btn {
+    display: inline-block; margin-top: 20px; background: var(--navy); color: #fff;
+    padding: 12px 22px; border-radius: 8px; font-weight: 600; text-decoration: none; font-size: 14px;
+  }
+  .sm-link-btn:hover { background: var(--navy-soft); }
+  .sm-back { display: block; text-align: center; margin-top: 30px; color: var(--muted); font-size: 13px; }
+</style>
+</head>
+<body>
+
+<div class="sm-wrap">
+  <div class="sm-header">
+    <h1>📚 Study Material</h1>
+    <p>Semester-wise subjects for all branches. Click below to access practical/reference material for your subjects.</p>
+    <a href="{{ subjects_data.study_material_link }}" target="_blank" rel="noopener" class="sm-link-btn">🔗 Open Study Material</a>
+  </div>
+
+  {% for bkey, branch in subjects_data.branches.items() %}
+  <div class="sm-branch">
+    <h2>{{ branch.display_name }}</h2>
+    {% for skey, sem in branch.semesters.items() %}
+    <div class="sm-sem">
+      <div class="sm-sem-title">Semester {{ skey }}</div>
+      <ul class="sm-subject-list">
+        {% for subject in sem.subjects %}
+        <li>{{ subject }}</li>
+        {% endfor %}
+      </ul>
+    </div>
+    {% endfor %}
+  </div>
+  {% endfor %}
+
+  <a href="{{ url_for('home') }}" class="sm-back">← Back to website</a>
+</div>
+
+</body>
+</html>
