@@ -1,0 +1,54 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Login</title>
+<link rel="icon" type="image/png" href="{{ url_for('static', filename='img/college-logo-small.png') }}">
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,600;9..144,700&family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+</head>
+<body class="login-body login-split-body">
+
+<div class="login-split-wrap">
+
+  <div class="login-split-brand">
+    <div class="login-split-brand-inner">
+      <div class="login-split-crest">
+        <img src="{{ url_for('static', filename='img/college-logo.jpg') }}" alt="College Logo">
+      </div>
+      <h1 class="login-split-college-name">{{ college.college_name if college else 'College Portal' }}</h1>
+      <p class="login-split-tagline">Staff Login Portal</p>
+      <p class="login-split-desc">Manage admissions, news, events, gallery, class attendance, and everything that keeps the college website running — all in one place.</p>
+    </div>
+  </div>
+
+  <div class="login-split-form-side">
+    <div class="login-card login-split-card">
+      <h2 class="login-split-heading">Sign in</h2>
+      <p class="login-sub">Enter your username and password to continue.</p>
+
+      {% with messages = get_flashed_messages() %}
+        {% if messages %}
+          <div class="flash-msg">{{ messages[0] }}</div>
+        {% endif %}
+      {% endwith %}
+
+      <form method="POST" action="{{ url_for('login') }}" class="login-form">
+        <label>Username</label>
+        <input type="text" name="username" required autofocus>
+
+        <label>Password</label>
+        <input type="password" name="password" required>
+
+        <button type="submit">Login</button>
+      </form>
+
+      <a href="{{ url_for('home') }}" class="back-link">← Back to website</a>
+    </div>
+  </div>
+
+</div>
+
+</body>
+</html>
