@@ -1,0 +1,84 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>College AI Assistant — {{ college.college_name }}</title>
+<link rel="icon" type="image/png" href="{{ url_for('static', filename='img/college-logo-small.png') }}">
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,400;9..144,600;9..144,700&family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@500&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+</head>
+<body class="chat-fullpage-body ai-theme">
+
+<div class="ai-bg">
+  <span class="ai-orb ai-orb-1"></span>
+  <span class="ai-orb ai-orb-2"></span>
+  <span class="ai-orb ai-orb-3"></span>
+</div>
+
+<div class="chat-fullpage ai-chat-shell">
+
+  <div class="chat-fullpage-header ai-header">
+    <a href="{{ url_for('home') }}" class="chat-fullpage-back">← Back to website</a>
+    <span class="chat-fullpage-title">
+      <span class="ai-logo-ring"><img src="{{ url_for('static', filename='img/college-logo.jpg') }}" alt="Logo" class="title-logo"></span>
+      {{ college.college_name }} — College AI Assistant
+    </span>
+    <button type="button" id="voiceOutputToggle" class="voice-toggle-btn ai-voice-toggle" title="Turn on/off voice replies">🔇</button>
+  </div>
+
+  <div id="welcomeScreen" class="ai-welcome">
+    <div class="ai-welcome-orb">
+      <span class="ai-orb-ring r1"></span>
+      <span class="ai-orb-ring r2"></span>
+      <span class="ai-orb-core">✨</span>
+    </div>
+    <h1 class="ai-welcome-title">Namaste! Main <span>College AI Assistant</span> hoon</h1>
+    <p class="ai-welcome-sub">English, Hindi ya Marathi mein poochho — admission, fees, courses, placement, hostel, ya kuch bhi college se related. Mic dabaakar bolke bhi pooch sakte ho.</p>
+
+    <div class="ai-suggest-grid">
+      <button class="ai-suggest-card" data-q="What courses do you offer?">
+        <span class="ai-suggest-icon">🎓</span>
+        <span class="ai-suggest-text">Courses ke baare mein batao</span>
+      </button>
+      <button class="ai-suggest-card" data-q="Admission process kya hai?">
+        <span class="ai-suggest-icon">📝</span>
+        <span class="ai-suggest-text">Admission process kya hai?</span>
+      </button>
+      <button class="ai-suggest-card" data-q="Fees kitni hai?">
+        <span class="ai-suggest-icon">💰</span>
+        <span class="ai-suggest-text">Fees structure kitna hai?</span>
+      </button>
+      <button class="ai-suggest-card" data-q="Placement kaisa hai?">
+        <span class="ai-suggest-icon">📈</span>
+        <span class="ai-suggest-text">Placement record kaisa hai?</span>
+      </button>
+      <button class="ai-suggest-card" data-q="Scholarship kaise apply kare?">
+        <span class="ai-suggest-icon">🎁</span>
+        <span class="ai-suggest-text">Scholarship kaise apply kare?</span>
+      </button>
+      <button class="ai-suggest-card" data-q="Hostel facility hai kya?">
+        <span class="ai-suggest-icon">🏠</span>
+        <span class="ai-suggest-text">Hostel facility hai kya?</span>
+      </button>
+    </div>
+  </div>
+
+  <div id="chatWindow" class="chat-window chat-window-full ai-chat-window"></div>
+  <div id="suggestionRow" class="suggestion-row"></div>
+
+  <form id="chatForm" class="chat-input-row ai-input-row">
+    <button type="button" id="micBtn" class="mic-btn ai-mic-btn" title="Speak your question">
+      <span class="mic-icon">🎤</span>
+      <span class="mic-ripple"></span>
+    </button>
+    <input type="text" id="userInput" placeholder="Apna sawaal likho ya mic dabaakar bolo…" autocomplete="off" required>
+    <button type="submit" id="sendBtn" class="ai-send-btn" title="Send">
+      <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><line x1="12" y1="19" x2="12" y2="5"></line><polyline points="5 12 12 5 19 12"></polyline></svg>
+    </button>
+  </form>
+</div>
+
+<script src="{{ url_for('static', filename='script.js') }}"></script>
+</body>
+</html>
