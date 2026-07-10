@@ -1,0 +1,19 @@
+{
+  "topic_counts": {
+    "fees": 1,
+    "staff": 1
+  },
+  "recent_questions": [
+    {
+      "text": "computer department",
+      "topic": "staff",
+      "time": "10 Jul 2026, 01:35 AM"
+    },
+    {
+      "text": "computer department fees",
+      "topic": "fees",
+      "time": "10 Jul 2026, 01:34 AM"
+    }
+  ],
+  "total_questions": 2
+}
