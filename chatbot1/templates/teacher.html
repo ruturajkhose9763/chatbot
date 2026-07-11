@@ -1,0 +1,858 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Teacher Dashboard</title>
+<link rel="icon" type="image/png" href="{{ url_for('static', filename='img/college-logo-small.png') }}">
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,600;9..144,700&family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@500&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+</head>
+<body class="ad2-body">
+
+<div class="ad2-shell">
+
+  <!-- ============ SIDEBAR ============ -->
+  <aside class="ad2-sidebar" id="ad2Sidebar">
+    <div class="ad2-brand">
+      <span class="ad2-brand-crest"><img src="{{ url_for('static', filename='img/college-logo.jpg') }}" alt="Logo"></span>
+      <div>
+        <strong>TEACHER</strong>
+        <small>DASHBOARD</small>
+      </div>
+    </div>
+
+    <nav class="ad2-nav">
+      <a href="#dashboard-home" class="ad2-nav-link active">🏠 <span>Dashboard</span></a>
+
+      <p class="ad2-nav-label">STUDENTS</p>
+      {% if my_class_key %}
+      <a href="#my-class" class="ad2-nav-link">👨‍🎓 <span>Attendance</span></a>
+      {% endif %}
+
+      <p class="ad2-nav-label">TEACHING</p>
+      <a href="#materials" class="ad2-nav-link">📚 <span>Study Materials</span></a>
+      {% if my_class_key %}
+      <a href="#my-class" class="ad2-nav-link">📅 <span>Timetable</span></a>
+      {% endif %}
+
+      <p class="ad2-nav-label">AI ASSISTANT</p>
+      <a href="#ai-assistant" class="ad2-nav-link">🤖 <span>Ask AI &amp; FAQs</span></a>
+
+      <p class="ad2-nav-label">MY PROFILE</p>
+      <a href="#profile" class="ad2-nav-link">👤 <span>Edit Profile</span></a>
+
+      <a href="{{ url_for('logout') }}" class="ad2-nav-link ad2-logout">🚪 <span>Logout</span></a>
+    </nav>
+  </aside>
+
+  <div class="ad2-sidebar-overlay" id="ad2SidebarOverlay"></div>
+
+  <!-- ============ MAIN ============ -->
+  <div class="ad2-main">
+
+    <div class="ad2-topbar">
+      <button type="button" class="ad2-menu-btn" id="ad2MenuBtn" title="Menu">☰</button>
+      <div class="ad2-topbar-title">
+        <strong>Welcome back, {{ current_account.full_name.split(' ')[0] if current_account.full_name else 'Admin' }}! 👋</strong>
+        <small>Here's what's happening with your college website today.</small>
+      </div>
+      <div class="ad2-topbar-right">
+        <div class="ad2-search"><span>🔍</span><input type="text" id="ad2Search" placeholder="Search here..." autocomplete="off"></div>
+        {% if teacher_unanswered %}
+        <a href="#ai-assistant" class="ad2-bell" title="{{ teacher_unanswered|length }} unanswered questions">
+          🔔 <span class="ad2-bell-badge">{{ teacher_unanswered|length }}</span>
+        </a>
+        {% else %}
+        <span class="ad2-bell">🔔</span>
+        {% endif %}
+        <div class="ad2-profile">
+          <div class="ad2-profile-dp">
+            {% if current_account.dp_filename %}<img src="{{ current_account.dp_filename }}" alt="DP">{% else %}👤{% endif %}
+          </div>
+          <div class="ad2-profile-text">
+            <strong>{{ current_account.full_name }}</strong>
+            <small>{{ current_account.designation or ('Main Admin' if is_main_admin else 'Teacher') }}</small>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="ad2-content">
+
+      {% with messages = get_flashed_messages() %}
+        {% if messages %}
+          <div class="flash-msg ad2-flash">{{ messages[0] }}</div>
+        {% endif %}
+      {% endwith %}
+
+      <!-- ============ DASHBOARD HOME ============ -->
+      <section id="dashboard-home" class="ad2-dash">
+
+        {% if is_main_admin and dash_stats %}
+        <div class="ad2-stat-grid">
+          <div class="ad2-stat-card ad2-stat-blue">
+            <span class="ad2-stat-icon">🎓</span>
+            <div><span class="ad2-stat-label">Total Students</span><span class="ad2-stat-value">{{ dash_stats.total_students }}</span></div>
+          </div>
+          <div class="ad2-stat-card ad2-stat-green">
+            <span class="ad2-stat-icon">👤</span>
+            <div><span class="ad2-stat-label">Total Staff</span><span class="ad2-stat-value">{{ dash_stats.total_staff }}</span></div>
+          </div>
+          <div class="ad2-stat-card ad2-stat-purple">
+            <span class="ad2-stat-icon">🏛️</span>
+            <div><span class="ad2-stat-label">Departments</span><span class="ad2-stat-value">{{ dash_stats.total_departments }}</span></div>
+          </div>
+          <div class="ad2-stat-card ad2-stat-orange">
+            <span class="ad2-stat-icon">📖</span>
+            <div><span class="ad2-stat-label">Total Courses</span><span class="ad2-stat-value">{{ dash_stats.total_courses }}</span></div>
+          </div>
+          <div class="ad2-stat-card ad2-stat-pink">
+            <span class="ad2-stat-icon">💬</span>
+            <div><span class="ad2-stat-label">Chatbot Queries</span><span class="ad2-stat-value">{{ dash_stats.chatbot_queries }}</span></div>
+          </div>
+        </div>
+        {% elif not is_main_admin %}
+        <div class="ad2-stat-grid ad2-stat-grid-teacher">
+          <div class="ad2-stat-card ad2-stat-blue">
+            <span class="ad2-stat-icon">🏫</span>
+            <div><span class="ad2-stat-label">My Class</span><span class="ad2-stat-value" style="font-size:15px;">{{ my_class.display_name if my_class else 'Not assigned' }}</span></div>
+          </div>
+          <div class="ad2-stat-card ad2-stat-green">
+            <span class="ad2-stat-icon">🎓</span>
+            <div><span class="ad2-stat-label">Students in Class</span><span class="ad2-stat-value">{{ my_class_students|length }}</span></div>
+          </div>
+          <div class="ad2-stat-card ad2-stat-purple">
+            <span class="ad2-stat-icon">📋</span>
+            <div><span class="ad2-stat-label">Class Notices</span><span class="ad2-stat-value">{{ my_class.notices|length if my_class else 0 }}</span></div>
+          </div>
+          <div class="ad2-stat-card ad2-stat-orange">
+            <span class="ad2-stat-icon">🗓️</span>
+            <div><span class="ad2-stat-label">Attendance Days Recorded</span><span class="ad2-stat-value">{{ my_class_attendance_dates|length }}</span></div>
+          </div>
+        </div>
+        {% endif %}
+
+        <div class="ad2-dash-grid">
+
+          {% if is_main_admin and analytics %}
+          <div class="ad2-card ad2-card-wide">
+            <div class="ad2-card-head"><h3>🤖 Chatbot — Most Asked Topics</h3></div>
+            {% if analytics.top_topics %}
+            <div class="analytics-bars">
+              {% for topic, count in analytics.top_topics %}
+              <div class="analytics-bar-row">
+                <span class="analytics-topic">{{ topic|capitalize }}</span>
+                <div class="analytics-bar-track">
+                  <div class="analytics-bar-fill" style="width: {{ (count / analytics.top_topics[0][1] * 100)|round }}%"></div>
+                </div>
+                <span class="analytics-count">{{ count }}</span>
+              </div>
+              {% endfor %}
+            </div>
+            {% else %}
+            <p class="empty-note">No questions asked yet.</p>
+            {% endif %}
+          </div>
+          {% endif %}
+
+          <div class="ad2-card">
+            <div class="ad2-card-head"><h3>📅 Upcoming Events</h3><a href="#events">View All</a></div>
+            <div class="ad2-widget-list">
+              {% for e in content.events[:3] %}
+              <div class="ad2-widget-item">
+                <span class="ad2-widget-date">{{ e.date }}</span>
+                <div><strong>{{ e.title }}</strong><p>{{ e.description }}</p></div>
+              </div>
+              {% else %}
+              <p class="empty-note">No upcoming events.</p>
+              {% endfor %}
+            </div>
+          </div>
+
+          <div class="ad2-card">
+            <div class="ad2-card-head"><h3>📋 Recent Notices</h3><a href="#news">View All</a></div>
+            <div class="ad2-widget-list">
+              {% for n in content.news[:3] %}
+              <div class="ad2-widget-item">
+                <span class="ad2-widget-dot">📣</span>
+                <div><strong>{{ n.title }}</strong><p>{{ n.description }}</p><small>{{ n.date }}</small></div>
+              </div>
+              {% else %}
+              <p class="empty-note">No notices yet.</p>
+              {% endfor %}
+            </div>
+          </div>
+
+          <div class="ad2-card">
+            <div class="ad2-card-head"><h3>📰 Latest News</h3><a href="#news">View All</a></div>
+            <div class="ad2-widget-list">
+              {% for n in content.news[:3] %}
+              <div class="ad2-widget-item">
+                <div><strong>{{ n.title }}</strong><p>{{ n.description }}</p><small>{{ n.date }}</small></div>
+              </div>
+              {% else %}
+              <p class="empty-note">No news added yet.</p>
+              {% endfor %}
+            </div>
+          </div>
+
+          {% if is_main_admin and analytics %}
+          <div class="ad2-card">
+            <div class="ad2-card-head"><h3>💬 Recent Chatbot Questions</h3><a href="#chat-history">View All</a></div>
+            <div class="ad2-widget-list">
+              {% for q in analytics.recent_questions[:5] %}
+              <div class="ad2-widget-item">
+                <div><strong>{{ q.text }}</strong></div>
+                <small>{{ q.time }}</small>
+              </div>
+              {% else %}
+              <p class="empty-note">No questions asked yet.</p>
+              {% endfor %}
+            </div>
+          </div>
+          {% endif %}
+
+          <div class="ad2-card">
+            <div class="ad2-card-head"><h3>⚡ Quick Actions</h3></div>
+            <div class="ad2-quick-actions">
+              {% if my_class_key %}
+              <a href="#my-class" class="ad2-qa-btn ad2-qa-teal">🏫<span>My Class</span></a>
+              {% endif %}
+              <a href="#materials" class="ad2-qa-btn ad2-qa-purple">📚<span>Upload Material</span></a>
+              <a href="#ai-assistant" class="ad2-qa-btn ad2-qa-red">🤖<span>AI Assistant</span></a>
+              <a href="#news" class="ad2-qa-btn ad2-qa-blue">📄<span>Add News</span></a>
+              <a href="#events" class="ad2-qa-btn ad2-qa-green">📅<span>Add Event</span></a>
+              <a href="#gallery" class="ad2-qa-btn ad2-qa-orange">🖼️<span>Upload Gallery</span></a>
+              {% if is_main_admin %}
+              <a href="#analytics" class="ad2-qa-btn ad2-qa-red">🤖<span>Train Chatbot</span></a>
+              <a href="#staff" class="ad2-qa-btn ad2-qa-teal">👥<span>Manage Staff</span></a>
+              {% endif %}
+            </div>
+          </div>
+
+        </div>
+      </section>
+
+  <!-- ========== MY PROFILE (all roles) ========== -->
+  <section class="admin-block" id="profile">
+    <h2>My Profile</h2>
+    <div class="profile-row">
+      <div class="dp-frame">
+        {% if current_account.dp_filename %}
+          <img src="{{ current_account.dp_filename }}" alt="DP">
+        {% else %}
+          <span class="dp-placeholder">👤</span>
+        {% endif %}
+      </div>
+      <div>
+        <strong>{{ current_account.full_name }}</strong>
+        <p class="admin-item-date">@{{ current_account.username }} · {{ current_account.designation or current_account.role.replace('_',' ').title() }}
+          {% if current_account.department %} · {{ current_account.department }}{% endif %}
+          {% if current_account.subject %} · Teaches {{ current_account.subject }}{% endif %}
+        </p>
+      </div>
+    </div>
+    <form method="POST" action="{{ url_for('upload_dp') }}" enctype="multipart/form-data" class="admin-form">
+      <input type="file" name="dp" accept="image/png,image/jpeg,image/webp" required>
+      <button type="submit">Update Profile Photo</button>
+    </form>
+
+    <h3 class="admin-subhead">Change Password</h3>
+    <form method="POST" action="{{ url_for('change_password') }}" class="admin-form">
+      <label>Current Password</label>
+      <input type="password" name="current_password" required>
+      <label>New Password (min 6 characters)</label>
+      <input type="password" name="new_password" required minlength="6">
+      <label>Confirm New Password</label>
+      <input type="password" name="confirm_password" required minlength="6">
+      <button type="submit">Change Password</button>
+    </form>
+
+    {% if is_main_admin %}
+    <h3 class="admin-subhead">Your Designation</h3>
+    <p class="muted-note">This custom title (e.g. "Principal", "HOD") will show instead of the generic "Admin" label around the site.</p>
+    <form method="POST" action="{{ url_for('set_designation') }}" class="admin-form">
+      <input type="text" name="designation" placeholder="e.g. Principal, HOD, Director" value="{{ current_account.designation or '' }}">
+      <button type="submit">Save Designation</button>
+    </form>
+    {% endif %}
+  </section>
+
+  {% if my_class_key %}
+  <!-- ========== MY CLASS (teacher assigned to a class) ========== -->
+  <section class="admin-block" id="my-class">
+    <h2>My Class: {{ my_class.display_name if my_class else 'Not assigned' }}</h2>
+
+    {% if my_class %}
+    <h3 class="admin-subhead">Timetable</h3>
+    <form method="POST" action="{{ url_for('update_timetable') }}" class="admin-form">
+      <textarea name="timetable" rows="6" placeholder="Enter your class timetable">{{ my_class.timetable }}</textarea>
+      <button type="submit">Save Timetable</button>
+    </form>
+
+    <h3 class="admin-subhead" style="margin-top:20px;">Class Notices</h3>
+    <form method="POST" action="{{ url_for('add_class_notice') }}" class="admin-form">
+      <input type="text" name="title" placeholder="Notice title" required>
+      <textarea name="message" placeholder="Notice details" required></textarea>
+      <button type="submit">Add Notice</button>
+    </form>
+
+    <div class="admin-list">
+      {% for n in my_class.notices %}
+      <div class="admin-item">
+        <div><strong>{{ n.title }}</strong><p>{{ n.message }}</p></div>
+        <a href="{{ url_for('delete_class_notice', item_id=n.id) }}" class="delete-link" onclick="return confirm('Delete this notice?')">Delete</a>
+      </div>
+      {% else %}
+      <p class="empty-note">No notices added yet.</p>
+      {% endfor %}
+    </div>
+
+    <h3 class="admin-subhead" style="margin-top:20px;">🧑‍🎓 Attendance</h3>
+    <p class="muted-note">Manage your class roster and mark daily attendance. This data is private — only Admin and Teacher accounts can see it.</p>
+
+    <form method="POST" action="{{ url_for('attendance_add_student') }}" class="admin-form">
+      <input type="text" name="student_name" placeholder="Add student name" required>
+      <button type="submit" class="btn-small">➕ Add Student</button>
+    </form>
+
+    {% if my_class_students %}
+    <form method="POST" action="{{ url_for('attendance_mark') }}" class="admin-form" style="margin-top:14px;">
+      <label>Date</label>
+      <input type="date" name="date" value="{{ '' }}">
+      <div class="admin-list" style="margin-top:8px;">
+        {% for student in my_class_students %}
+        <div class="admin-item">
+          <div><strong>{{ student }}</strong></div>
+          <div style="display:flex;gap:12px;align-items:center;">
+            <label style="display:flex;align-items:center;gap:4px;font-size:13px;">
+              <input type="radio" name="status_{{ student }}" value="present" checked> Present
+            </label>
+            <label style="display:flex;align-items:center;gap:4px;font-size:13px;">
+              <input type="radio" name="status_{{ student }}" value="absent"> Absent
+            </label>
+            <form method="POST" action="{{ url_for('attendance_remove_student') }}" style="display:inline;" onsubmit="return confirm('Remove {{ student }} from class list?');">
+              <input type="hidden" name="student_name" value="{{ student }}">
+              <button type="submit" class="btn-small btn-danger">🗑️</button>
+            </form>
+          </div>
+        </div>
+        {% endfor %}
+      </div>
+      <button type="submit" style="margin-top:10px;">✅ Save Attendance for This Date</button>
+    </form>
+
+    {% if my_class_attendance_pct %}
+    <h3 class="admin-subhead" style="margin-top:20px;">📊 Attendance % (of recorded days)</h3>
+    <div>
+      {% for s in my_class_attendance_pct %}
+      <div class="attendance-bar-row">
+        <span class="attendance-bar-label">{{ s.name }}</span>
+        <div class="attendance-bar-track"><div class="attendance-bar-fill" style="width:{{ s.pct }}%;"></div></div>
+        <span class="attendance-bar-pct">{{ s.pct }}%</span>
+      </div>
+      {% endfor %}
+    </div>
+    {% endif %}
+
+    {% if my_class_attendance_table %}
+    <h3 class="admin-subhead" style="margin-top:20px;">🗓️ Attendance Table (recent dates)</h3>
+    <div style="overflow-x:auto;">
+      <table class="attendance-table">
+        <thead>
+          <tr>
+            <th>Student</th>
+            {% for d in my_class_attendance_dates %}<th>{{ d }}</th>{% endfor %}
+          </tr>
+        </thead>
+        <tbody>
+          {% for row in my_class_attendance_table %}
+          <tr>
+            <td><strong>{{ row.name }}</strong></td>
+            {% for status in row.statuses %}
+            <td>
+              {% if status == 'present' %}<span class="attendance-status-present">Present</span>
+              {% elif status == 'absent' %}<span class="attendance-status-absent">Absent</span>
+              {% else %}—{% endif %}
+            </td>
+            {% endfor %}
+          </tr>
+          {% endfor %}
+        </tbody>
+      </table>
+    </div>
+    {% endif %}
+
+    {% else %}
+    <p class="empty-note">No students added to this class yet.</p>
+    {% endif %}
+
+    {% else %}
+    <p class="empty-note">Please contact the main admin to assign your class.</p>
+    {% endif %}
+  </section>
+  {% endif %}
+
+  <!-- ========== STUDY MATERIALS (upload notes/PPT/assignments) ========== -->
+  <section class="admin-block" id="materials">
+    <h2>📚 Study Materials</h2>
+    <p class="muted-note">Upload notes, PPTs, assignments, or question papers for your subject. Students can access these from the Study Material page on the website.</p>
+    <form method="POST" action="{{ url_for('upload_material') }}" enctype="multipart/form-data" class="admin-form">
+      <input type="text" name="title" placeholder="Title (e.g. Unit 3 Notes)" required>
+      <select name="material_type">
+        <option value="Notes">Notes (PDF)</option>
+        <option value="PPT">Presentation (PPT)</option>
+        <option value="Assignment">Assignment</option>
+        <option value="Question Paper">Question Paper</option>
+      </select>
+      <input type="file" name="material" accept=".pdf,.ppt,.pptx,.doc,.docx" required>
+      <button type="submit">⬆️ Upload Material</button>
+    </form>
+
+    <div class="admin-list" style="margin-top:16px;">
+      {% for m in study_materials %}
+      <div class="admin-item">
+        <div>
+          <strong>{{ m.title }}</strong>
+          <p class="admin-item-date">{{ m.material_type }} · {{ m.date }}{% if m.subject %} · {{ m.subject }}{% endif %} · by {{ m.uploaded_by_name }}</p>
+        </div>
+        <div style="display:flex; gap:10px; align-items:center;">
+          <a href="{{ url_for('static', filename='uploads/study_materials/' + m.filename) }}" target="_blank">View</a>
+          <a href="{{ url_for('delete_material', item_id=m.id) }}" class="delete-link" onclick="return confirm('Delete this material?')">Delete</a>
+        </div>
+      </div>
+      {% else %}
+      <p class="empty-note">No study materials uploaded yet.</p>
+      {% endfor %}
+    </div>
+  </section>
+
+  <!-- ========== AI ASSISTANT (Ask AI, student questions, FAQs) ========== -->
+  <section class="admin-block" id="ai-assistant">
+    <h2>🤖 AI Assistant</h2>
+    <p class="muted-note">Chat with the same AI assistant your students use, and help it learn by answering questions it couldn't handle.</p>
+    <a href="{{ url_for('full_chat') }}" target="_blank" rel="noopener" class="ad2-qa-btn ad2-qa-red" style="display:inline-flex; margin-bottom:20px;">🤖<span>Ask AI Assistant</span></a>
+
+    <h3 class="admin-subhead">❓ Questions Students Asked (unanswered by the bot)</h3>
+    <div class="admin-list">
+      {% for q in teacher_unanswered %}
+      <div class="admin-item">
+        <div><strong>{{ q.text }}</strong><p class="admin-item-date">{{ q.time }}</p></div>
+      </div>
+      {% else %}
+      <p class="empty-note">No unanswered questions right now. 🎉</p>
+      {% endfor %}
+    </div>
+
+    <h3 class="admin-subhead" style="margin-top:20px;">➕ Teach the AI a New Answer (FAQ)</h3>
+    <form method="POST" action="{{ url_for('add_custom_qa') }}" class="admin-form">
+      <input type="text" name="question" placeholder="Question a student might ask" required>
+      <textarea name="answer" placeholder="The answer the AI should give" required></textarea>
+      <button type="submit">➕ Teach This Answer</button>
+    </form>
+
+    <h3 class="admin-subhead" style="margin-top:20px;">🧠 Learned FAQs</h3>
+    <div class="admin-list">
+      {% for qa in custom_qa_items %}
+      <div class="admin-item">
+        <div><strong>{{ qa.question }}</strong><p>{{ qa.answer }}</p></div>
+        <form method="POST" action="{{ url_for('delete_custom_qa', qa_id=qa.id) }}" onsubmit="return confirm('Delete this FAQ?');">
+          <button type="submit" class="btn-small btn-danger">🗑️ Remove</button>
+        </form>
+      </div>
+      {% else %}
+      <p class="empty-note">No FAQs taught yet.</p>
+      {% endfor %}
+    </div>
+  </section>
+
+  <!-- ========== ADMIN + STAFF SHARED CONTENT SECTIONS ========== -->
+
+  {% if is_main_admin %}
+  <section class="admin-block" id="analytics">
+    <h2>🤖 Chatbot Analytics</h2>
+    <p class="muted-note">Total questions asked so far: <strong>{{ analytics.total_questions }}</strong></p>
+
+    {% if analytics.top_topics %}
+    <h3 class="admin-subhead" id="chatbot-analytics">Most Asked Topics</h3>
+    <div class="analytics-bars">
+      {% for topic, count in analytics.top_topics %}
+      <div class="analytics-bar-row">
+        <span class="analytics-topic">{{ topic|capitalize }}</span>
+        <div class="analytics-bar-track">
+          <div class="analytics-bar-fill" style="width: {{ (count / analytics.top_topics[0][1] * 100)|round }}%"></div>
+        </div>
+        <span class="analytics-count">{{ count }}</span>
+      </div>
+      {% endfor %}
+    </div>
+    {% else %}
+    <p class="empty-note">No questions asked yet.</p>
+    {% endif %}
+
+    {% if analytics.recent_questions %}
+    <h3 class="admin-subhead" id="chat-history">Recent Questions</h3>
+    <div class="analytics-recent-list">
+      {% for q in analytics.recent_questions %}
+      <div class="analytics-recent-item">
+        <span class="analytics-recent-text">{{ q.text }}</span>
+        <span class="analytics-recent-meta">{{ q.topic|capitalize }} · {{ q.time }}</span>
+      </div>
+      {% endfor %}
+    </div>
+    {% endif %}
+
+    {% if analytics.unanswered_questions %}
+    <h3 class="admin-subhead">❓ Unanswered Questions (needs attention)</h3>
+    <p class="muted-note">Teach the chatbot an answer here — it will recognise similarly worded questions next time.</p>
+    <div class="analytics-recent-list">
+      {% for q in analytics.unanswered_questions %}
+      <div class="analytics-recent-item analytics-unanswered-item">
+        <span class="analytics-recent-text">{{ q.text }}</span>
+        <span class="analytics-recent-meta">{{ q.time }}</span>
+        <form method="POST" action="{{ url_for('add_custom_qa') }}" class="qa-teach-form">
+          <input type="hidden" name="question" value="{{ q.text }}">
+          <input type="text" name="answer" placeholder="Type the answer to teach the bot..." required>
+          <button type="submit" class="btn-small">💡 Teach</button>
+        </form>
+      </div>
+      {% endfor %}
+    </div>
+    {% endif %}
+
+    {% if custom_qa_items %}
+    <h3 class="admin-subhead" id="faqs">🧠 Learned Answers</h3>
+    <p class="muted-note">Questions the bot has already been taught to answer.</p>
+    <div class="analytics-recent-list">
+      {% for item in custom_qa_items %}
+      <div class="analytics-recent-item">
+        <span class="analytics-recent-text"><strong>Q:</strong> {{ item.question }}</span>
+        <span class="analytics-recent-text"><strong>A:</strong> {{ item.answer }}</span>
+        <span class="analytics-recent-meta">Added {{ item.added_on }}</span>
+        <form method="POST" action="{{ url_for('delete_custom_qa', qa_id=item.id) }}"
+              onsubmit="return confirm('Remove this learned answer?');">
+          <button type="submit" class="btn-small btn-danger">🗑️ Remove</button>
+        </form>
+      </div>
+      {% endfor %}
+    </div>
+    {% endif %}
+
+    <h3 class="admin-subhead">➕ Teach a New Q&A Directly</h3>
+    <form method="POST" action="{{ url_for('add_custom_qa') }}" class="admin-form">
+      <input type="text" name="question" placeholder="Example question a student might ask" required>
+      <textarea name="answer" placeholder="Answer the bot should give" required></textarea>
+      <button type="submit">💡 Teach Chatbot</button>
+    </form>
+
+    <form method="POST" action="{{ url_for('clear_analytics') }}" style="margin-top:16px;"
+          onsubmit="return confirm('Clear all chatbot analytics data? This cannot be undone.');">
+      <button type="submit" class="btn-danger">🗑️ Clear Analytics Data</button>
+    </form>
+  </section>
+
+  <section class="admin-block" id="staff">
+    <h2>Manage Staff Accounts</h2>
+    <form method="POST" action="{{ url_for('add_staff') }}" class="admin-form">
+      <input type="text" name="full_name" placeholder="Full name" required>
+      <input type="text" name="username" placeholder="Username" required>
+      <input type="password" name="password" placeholder="Password" required>
+      <input type="text" name="department" placeholder="Department">
+      <input type="text" name="subject" placeholder="Subject taught (optional)">
+      <label>Assign a class to manage (optional — gives access to that class's timetable, notices &amp; attendance)</label>
+      <select name="class_key">
+        <option value="">— No class assigned —</option>
+        {% for key, cls in all_classes.items() %}
+        <option value="{{ key }}">{{ cls.display_name }}</option>
+        {% endfor %}
+      </select>
+      <button type="submit">Create Staff Account</button>
+    </form>
+
+    <div class="admin-list">
+      {% for a in accounts %}
+      <div class="admin-item">
+        <div class="profile-row">
+          <div class="dp-frame small">
+            {% if a.dp_filename %}
+              <img src="{{ a.dp_filename }}" alt="DP">
+            {% else %}
+              <span class="dp-placeholder">👤</span>
+            {% endif %}
+          </div>
+          <div>
+            <strong>{{ a.full_name }}</strong>
+            <span class="admin-item-date">@{{ a.username }} · {{ a.designation or a.role.replace('_',' ').title() }}{% if a.department %} · {{ a.department }}{% endif %}{% if a.class_key and all_classes.get(a.class_key) %} · Manages {{ all_classes[a.class_key].display_name }}{% endif %}</span>
+          </div>
+        </div>
+        {% if a.role != 'main_admin' %}
+        <a href="{{ url_for('delete_staff', item_id=a.id) }}" class="delete-link" onclick="return confirm('Remove this account?')">Remove</a>
+        {% endif %}
+      </div>
+      {% endfor %}
+    </div>
+  </section>
+
+  <section class="admin-block" id="subjects">
+    <h2>📚 Subjects (Chatbot Reference)</h2>
+    <p class="muted-note">This list is what the chatbot uses to answer "what subjects are in semester X" questions. Nothing to fill in — just a reference.</p>
+    {% for bkey, branch in subjects_data.branches.items() %}
+    <h3 class="admin-subhead">{{ branch.display_name }}</h3>
+    <div class="subjects-grid">
+      {% for skey, sem in branch.semesters.items() %}
+      <div class="subjects-sem-card">
+        <p class="subjects-sem-title">Semester {{ skey }}</p>
+        <ul class="subjects-chip-list">
+          {% for subject in sem.subjects %}
+          <li>{{ subject }}</li>
+          {% endfor %}
+        </ul>
+      </div>
+      {% endfor %}
+    </div>
+    {% endfor %}
+    <p class="muted-note" style="margin-top:12px;">Study material link (shown on the public Study Material page): <strong>{{ subjects_data.study_material_link }}</strong></p>
+  </section>
+
+  <section class="admin-block" id="college-info">
+    <h2>Edit College Information</h2>
+    <form method="POST" action="{{ url_for('edit_college_info') }}" class="admin-form">
+      <label>College Name</label>
+      <input type="text" name="college_name" value="{{ college.college_name }}">
+      <label>About</label>
+      <textarea name="about">{{ college.about }}</textarea>
+      <label>Address</label>
+      <input type="text" name="address" value="{{ college.contact.address }}">
+      <label>Phone</label>
+      <input type="text" name="phone" value="{{ college.contact.phone }}">
+      <label>Email</label>
+      <input type="text" name="email" value="{{ college.contact.email }}">
+      <label>College Lecture Timing</label>
+      <input type="text" name="college_hours" value="{{ college.timings.college_hours }}">
+      <label>Office Timing</label>
+      <input type="text" name="office_hours" value="{{ college.timings.office_hours }}">
+      <label>Admission Eligibility</label>
+      <textarea name="eligibility">{{ college.admission_process.eligibility }}</textarea>
+      <label>How to Apply</label>
+      <textarea name="how_to_apply">{{ college.admission_process.how_to_apply }}</textarea>
+      <label>Facebook Page URL</label>
+      <input type="text" name="facebook" placeholder="https://facebook.com/..." value="{{ college.social_links.facebook if college.social_links else '' }}">
+      <label>Instagram Page URL</label>
+      <input type="text" name="instagram" placeholder="https://instagram.com/..." value="{{ college.social_links.instagram if college.social_links else '' }}">
+      <label>YouTube Channel URL</label>
+      <input type="text" name="youtube" placeholder="https://youtube.com/..." value="{{ college.social_links.youtube if college.social_links else '' }}">
+      <button type="submit">Save Changes</button>
+    </form>
+  </section>
+
+  <section class="admin-block" id="video">
+    <h2>Campus Video</h2>
+    <p class="muted-note">
+      Currently showing:
+      {% if content.video_type == 'file' and content.video_file %}
+        an uploaded video file ({{ content.video_file }})
+      {% elif content.video_url %}
+        a YouTube video
+      {% else %}
+        no video yet
+      {% endif %}
+    </p>
+
+    <h3 class="admin-subhead">Option 1: YouTube Link</h3>
+    <form method="POST" action="{{ url_for('set_video') }}" class="admin-form">
+      <input type="text" name="video_url" placeholder="Paste any YouTube link (normal or embed)" value="{{ content.video_url }}">
+      <small style="display:block;margin-top:4px;color:var(--muted,#6B7686);">Normal links (youtube.com/watch?v=... or youtu.be/...) are auto-converted to embed format.</small>
+      <button type="submit">Save YouTube Video</button>
+    </form>
+
+    <h3 class="admin-subhead" style="margin-top:18px;">Option 2: Upload a Video File</h3>
+    <form method="POST" action="{{ url_for('upload_video') }}" enctype="multipart/form-data" class="admin-form">
+      <input type="file" name="video_file" accept=".mp4,.webm,.mov">
+      <small style="display:block;margin-top:4px;color:var(--muted,#6B7686);">MP4, WEBM or MOV file. This will replace the YouTube video on the site.</small>
+      <button type="submit">Upload Video</button>
+    </form>
+  </section>
+  {% endif %}
+
+  <section class="admin-block" id="admissions">
+    <h2>Admission Form Submissions</h2>
+    <div class="admin-list">
+      {% for s in admissions %}
+      <div class="admin-item">
+        <div>
+          <strong>{{ s.name }}</strong>
+          <span class="admin-item-date">{{ s.date }}</span>
+          <p>📞 {{ s.phone }} {% if s.email %}| ✉️ {{ s.email }}{% endif %}</p>
+          <p>Course: {{ s.course }}</p>
+          {% if s.message %}<p>Message: {{ s.message }}</p>{% endif %}
+        </div>
+        <a href="{{ url_for('delete_admission', item_id=s.id) }}" class="delete-link" onclick="return confirm('Delete this application?')">Delete</a>
+      </div>
+      {% else %}
+      <p class="empty-note">No admission applications submitted yet.</p>
+      {% endfor %}
+    </div>
+  </section>
+
+  <section class="admin-block" id="news">
+    <h2>Add News</h2>
+    <form method="POST" action="{{ url_for('add_news') }}" class="admin-form">
+      <input type="text" name="title" placeholder="News title" required>
+      <textarea name="description" placeholder="Description" required></textarea>
+      <input type="date" name="date">
+      <button type="submit">Add News</button>
+    </form>
+    <div class="admin-list">
+      {% for n in content.news %}
+      <div class="admin-item">
+        <div><strong>{{ n.title }}</strong><span class="admin-item-date">{{ n.date }}</span><p>{{ n.description }}</p></div>
+        <a href="{{ url_for('delete_item', kind='news', item_id=n.id) }}" class="delete-link" onclick="return confirm('Delete?')">Delete</a>
+      </div>
+      {% else %}
+      <p class="empty-note">No news added yet.</p>
+      {% endfor %}
+    </div>
+  </section>
+
+  <section class="admin-block" id="events">
+    <h2>Add Event</h2>
+    <form method="POST" action="{{ url_for('add_event') }}" class="admin-form">
+      <input type="text" name="title" placeholder="Event title" required>
+      <textarea name="description" placeholder="Description" required></textarea>
+      <input type="date" name="date">
+      <button type="submit">Add Event</button>
+    </form>
+    <div class="admin-list">
+      {% for e in content.events %}
+      <div class="admin-item">
+        <div><strong>{{ e.title }}</strong><span class="admin-item-date">{{ e.date }}</span><p>{{ e.description }}</p></div>
+        <a href="{{ url_for('delete_item', kind='events', item_id=e.id) }}" class="delete-link" onclick="return confirm('Delete?')">Delete</a>
+      </div>
+      {% else %}
+      <p class="empty-note">No events added yet.</p>
+      {% endfor %}
+    </div>
+  </section>
+
+  <section class="admin-block" id="downloads">
+    <h2>Upload Document (PDF)</h2>
+    <form method="POST" action="{{ url_for('upload_download') }}" enctype="multipart/form-data" class="admin-form">
+      <input type="text" name="title" placeholder="Document title">
+      <input type="file" name="document" accept="application/pdf" required>
+      <button type="submit">Upload Document</button>
+    </form>
+    <div class="admin-list">
+      {% for doc in content.downloads %}
+      <div class="admin-item">
+        <div><strong>{{ doc.title }}</strong></div>
+        <a href="{{ url_for('delete_item', kind='downloads', item_id=doc.id) }}" class="delete-link" onclick="return confirm('Delete?')">Delete</a>
+      </div>
+      {% else %}
+      <p class="empty-note">No documents uploaded yet.</p>
+      {% endfor %}
+    </div>
+  </section>
+
+  <section class="admin-block" id="gallery">
+    <h2>Upload Gallery Photo</h2>
+    <form method="POST" action="{{ url_for('upload_photo') }}" enctype="multipart/form-data" class="admin-form">
+      <input type="file" name="photo" accept="image/png,image/jpeg,image/webp" required>
+      <input type="text" name="caption" placeholder="Caption (optional)">
+      <button type="submit">Upload Photo</button>
+    </form>
+    <div class="admin-gallery-grid">
+      {% for g in content.gallery %}
+      <div class="admin-gallery-item">
+        <div class="img-frame"><img src="{{ g.url }}" alt="{{ g.caption }}"></div>
+        <a href="{{ url_for('delete_photo', item_id=g.id) }}" class="delete-link" onclick="return confirm('Delete?')">Delete</a>
+      </div>
+      {% else %}
+      <p class="empty-note">No photos uploaded yet.</p>
+      {% endfor %}
+    </div>
+  </section>
+
+    </div>
+  </div>
+</div>
+
+<script>
+(function () {
+  var menuBtn = document.getElementById('ad2MenuBtn');
+  var sidebar = document.getElementById('ad2Sidebar');
+  var overlay = document.getElementById('ad2SidebarOverlay');
+  if (menuBtn && sidebar && overlay) {
+    menuBtn.addEventListener('click', function () {
+      sidebar.classList.toggle('open');
+      overlay.classList.toggle('show');
+    });
+    overlay.addEventListener('click', function () {
+      sidebar.classList.remove('open');
+      overlay.classList.remove('show');
+    });
+  }
+
+  // ---- Single-section view: clicking a nav link / quick action / "View All"
+  //      shows ONLY that section (like a separate page), hides everything else ----
+  var pages = Array.prototype.slice.call(document.querySelectorAll('#dashboard-home, .admin-block'));
+  var subAnchorParent = { 'chat-history': 'analytics', 'faqs': 'analytics', 'chatbot-analytics': 'analytics' };
+
+  function showPage(id) {
+    var targetId = subAnchorParent[id] || id;
+    var targetEl = null;
+    pages.forEach(function (p) {
+      if (p.id === targetId) { p.style.display = 'block'; targetEl = p; }
+      else { p.style.display = 'none'; }
+    });
+    if (!targetEl && pages.length) { pages[0].style.display = 'block'; targetEl = pages[0]; targetId = pages[0].id; }
+
+    document.querySelectorAll('.ad2-nav-link').forEach(function (l) {
+      var linkId = (l.getAttribute('href') || '').replace('#', '');
+      l.classList.toggle('active', linkId === id || linkId === targetId);
+    });
+
+    // Single, instant scroll to the top of whichever element is now visible
+    // (either the section itself, or a sub-heading inside it) — no smooth
+    // animation and no separate window.scrollTo, so nothing fights the
+    // browser's own scroll handling afterwards.
+    var scrollTarget = document.getElementById(id) || targetEl;
+    if (scrollTarget) scrollTarget.scrollIntoView({ block: 'start' });
+  }
+
+  document.querySelectorAll('a[href^="#"]').forEach(function (link) {
+    var href = (link.getAttribute('href') || '').slice(1);
+    if (!href) return;
+    link.addEventListener('click', function (e) {
+      e.preventDefault();
+      showPage(href);
+      history.replaceState(null, '', '#' + href);
+      if (sidebar) sidebar.classList.remove('open');
+      if (overlay) overlay.classList.remove('show');
+    });
+  });
+
+  showPage((location.hash || '#dashboard-home').slice(1));
+
+  // Simple client-side search: jumps to a matching section heading
+  var searchInput = document.getElementById('ad2Search');
+  if (searchInput) {
+    searchInput.addEventListener('keydown', function (e) {
+      if (e.key !== 'Enter') return;
+      var q = searchInput.value.trim().toLowerCase();
+      if (!q) return;
+      var headings = document.querySelectorAll('.ad2-content h2, .ad2-content h3');
+      for (var i = 0; i < headings.length; i++) {
+        if (headings[i].textContent.toLowerCase().indexOf(q) !== -1) {
+          var sectionEl = headings[i].closest('.admin-block, #dashboard-home');
+          if (sectionEl) showPage(sectionEl.id);
+          headings[i].scrollIntoView({ block: 'start' });
+          break;
+        }
+      }
+    });
+  }
+})();
+</script>
+</body>
+</html>
