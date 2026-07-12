@@ -1,0 +1,75 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="robots" content="noindex, nofollow">
+<title>Raw Chatbot Data — Admin</title>
+<link rel="icon" type="image/png" href="{{ url_for('static', filename='img/college-logo-small.png') }}">
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,600;9..144,700&family=Inter:wght@400;500;600&family=JetBrains+Mono:wght@500&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+<style>
+  .raw-wrap { max-width: 980px; margin: 0 auto; padding: 30px 20px 60px; }
+  .raw-header { display: flex; align-items: center; justify-content: space-between; margin-bottom: 6px; }
+  .raw-header h1 { font-family: 'Fraunces', serif; font-size: 24px; margin: 0; }
+  .raw-back { color: var(--muted); font-size: 13.5px; text-decoration: none; }
+  .raw-note {
+    background: rgba(184,134,11,0.08); border: 1px solid rgba(184,134,11,0.3);
+    border-radius: 8px; padding: 12px 16px; font-size: 13.5px; color: var(--ink);
+    margin: 16px 0;
+  }
+  .raw-error {
+    background: rgba(198,40,40,0.08); border: 1px solid rgba(198,40,40,0.3);
+    color: #C62828; border-radius: 8px; padding: 12px 16px; font-size: 13.5px; margin-bottom: 16px;
+  }
+  .raw-textarea {
+    width: 100%; min-height: 65vh; box-sizing: border-box;
+    font-family: 'JetBrains Mono', monospace; font-size: 13px; line-height: 1.6;
+    background: #10182B; color: #D6E0FF; border: 1px solid var(--line); border-radius: 10px;
+    padding: 18px; resize: vertical; tab-size: 2;
+  }
+  .raw-actions { display: flex; gap: 10px; margin-top: 14px; align-items: center; }
+  .raw-actions button {
+    background: var(--navy); color: #fff; border: none; border-radius: 8px;
+    padding: 12px 22px; font-weight: 600; cursor: pointer; font-size: 14px;
+  }
+  .raw-actions button:hover { background: var(--navy-soft); }
+  .flash-msg-ok {
+    background: rgba(30,125,69,0.08); border: 1px solid rgba(30,125,69,0.3);
+    color: #1E7D45; padding: 10px 14px; border-radius: 8px; font-size: 13px; margin-bottom: 14px;
+  }
+</style>
+</head>
+<body style="background: var(--bg); margin:0;">
+
+<div class="raw-wrap">
+  <div class="raw-header">
+    <h1>🗄️ Raw Chatbot Data</h1>
+    <a href="{{ url_for('admin_dashboard') }}" class="raw-back">← Back to Dashboard</a>
+  </div>
+
+  <div class="raw-note">
+    यह chatbot की <strong>पूरी जानकारी</strong> है (JSON format में) — जो कुछ भी chatbot जानता है, वो सब यहां है।
+    Edit करके नीचे "Save" दबाओ। अगर JSON की spelling/structure गलत हुई तो <strong>save नहीं होगा</strong>
+    (गलती से पूरा data corrupt होने से बचाने के लिए) — गलती की जगह साफ बता दी जाएगी।
+  </div>
+
+  {% with messages = get_flashed_messages() %}
+    {% if messages %}<div class="flash-msg-ok">{{ messages[0] }}</div>{% endif %}
+  {% endwith %}
+
+  {% if error %}
+  <div class="raw-error">⚠️ {{ error }}</div>
+  {% endif %}
+
+  <form method="POST" action="{{ url_for('raw_data_save') }}">
+    <textarea name="raw_json" class="raw-textarea" spellcheck="false">{{ raw_json }}</textarea>
+    <div class="raw-actions">
+      <button type="submit">💾 Save Changes</button>
+      <span style="color:var(--muted); font-size:12.5px;">Changes turant chatbot ke jawabon mein reflect ho jayenge.</span>
+    </div>
+  </form>
+</div>
+
+</body>
+</html>
