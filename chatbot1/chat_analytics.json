@@ -1,0 +1,55 @@
+{
+  "topic_counts": {
+    "fees": 3,
+    "unmatched": 2,
+    "why_choose_us": 4
+  },
+  "recent_questions": [
+    {
+      "text": "Python programming ke baare me batao",
+      "topic": "unmatched",
+      "time": "14 Jul 2026, 01:07 AM"
+    },
+    {
+      "text": "is college me admission kyu lu",
+      "topic": "why_choose_us",
+      "time": "14 Jul 2026, 01:07 AM"
+    },
+    {
+      "text": "why should i join this college",
+      "topic": "why_choose_us",
+      "time": "14 Jul 2026, 01:07 AM"
+    },
+    {
+      "text": "college me kya khaas hai",
+      "topic": "why_choose_us",
+      "time": "14 Jul 2026, 01:07 AM"
+    },
+    {
+      "text": "is college me admission kyu lu",
+      "topic": "why_choose_us",
+      "time": "14 Jul 2026, 01:07 AM"
+    },
+    {
+      "text": "Python programming ke baare me batao",
+      "topic": "unmatched",
+      "time": "14 Jul 2026, 01:04 AM"
+    },
+    {
+      "text": "computer department fees",
+      "topic": "fees",
+      "time": "14 Jul 2026, 01:00 AM"
+    },
+    {
+      "text": "aur civil ka?",
+      "topic": "fees",
+      "time": "09 Jul 2026, 03:09 AM"
+    },
+    {
+      "text": "computer department fees",
+      "topic": "fees",
+      "time": "09 Jul 2026, 03:09 AM"
+    }
+  ],
+  "total_questions": 9
+}
