@@ -1,0 +1,15 @@
+{
+  "accounts": [
+    {
+      "id": 1,
+      "username": "Ruturaj",
+      "password_hash": "scrypt:32768:8:1$BxMEFOZ52y01VF9A$e87feea876673382825d823323abc4187bf8a61294c0ad3e7f7995cfeb26deeb53b6c3acc50e401bcc4726c87f3e73fe90afa513f8e33c77c0da9f742bd41421",
+      "full_name": "Ruturaj Khose",
+      "role": "main_admin",
+      "department": "Administration",
+      "subject": null,
+      "class_key": null,
+      "dp_filename": "Ruturaj_20260705143123_IMG_20241220_095125.jpg"
+    }
+  ]
+}

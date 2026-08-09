@@ -1,0 +1,23 @@
+{
+  "news": [
+    {
+      "id": 1,
+      "title": "Admission 2026-27 Started",
+      "description": "Online admission process for Diploma courses has begun. Apply through the DTE CAP portal.",
+      "date": "2026-06-01"
+    }
+  ],
+  "events": [
+    {
+      "id": 1,
+      "title": "Annual Technical Fest",
+      "description": "College annual technical festival with project exhibitions and competitions.",
+      "date": "2026-08-15"
+    }
+  ],
+  "gallery": [],
+  "testimonials": [],
+  "downloads": [],
+  "social_links": [],
+  "video_url": ""
+}
