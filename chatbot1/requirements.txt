@@ -1,7 +1,0 @@
-flask
-werkzeug
-gunicorn
-requests
-cloudinary
-pymongo
-edge-tts
