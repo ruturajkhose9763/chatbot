@@ -1,0 +1,63 @@
+<!DOCTYPE html>
+<html lang="en"><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1.0"><title>Student Dashboard</title><link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}"></head>
+<body>
+<main class="stu-shell">
+  <div class="stu-topbar">
+    <div>
+      <h1>👨‍🎓 Student Dashboard</h1>
+      <p>Welcome, <strong>{{ student.name }}</strong> · Roll No. <strong>{{ student.roll_no }}</strong></p>
+    </div>
+    <a class="back-link" href="{{ url_for('student_logout') }}">Logout</a>
+  </div>
+
+  <div class="stu-stat-grid">
+    <div class="stu-stat-card" style="animation-delay:0s;">
+      <span class="stu-stat-icon">✅</span>
+      <span class="stu-stat-value">{{ present_days }}</span>
+      <span class="stu-stat-label">Present Days</span>
+    </div>
+    <div class="stu-stat-card" style="animation-delay:0.05s;">
+      <span class="stu-stat-icon">🗓️</span>
+      <span class="stu-stat-value">{{ total_days }}</span>
+      <span class="stu-stat-label">Recorded Days</span>
+    </div>
+    <div class="stu-stat-card" style="animation-delay:0.1s;">
+      <span class="stu-stat-icon">📊</span>
+      <span class="stu-stat-value">{{ attendance_pct }}%</span>
+      <span class="stu-stat-label">Attendance</span>
+    </div>
+    <div class="stu-stat-card" style="animation-delay:0.15s;">
+      <span class="stu-stat-icon">🔔</span>
+      <span class="stu-stat-value">{{ unread }}</span>
+      <span class="stu-stat-label">New Notifications</span>
+    </div>
+  </div>
+
+  <section class="admin-block">
+    <h2>🔔 Notifications</h2>
+    {% for n in notifications %}
+    <div class="stu-notif-item {{ '' if not n.read else 'read' }}">
+      <span class="stu-notif-dot"></span>
+      <div><strong>{{ n.title }}</strong><p>{{ n.message }}</p><span class="admin-item-date">{{ n.date }}{% if not n.read %} · New{% endif %}</span></div>
+    </div>
+    {% else %}
+    <p class="empty-note">No notifications yet.</p>
+    {% endfor %}
+    {% if notifications %}<button type="button" class="btn-small" onclick="markRead()" style="margin-top:10px;">Mark notifications as read</button>{% endif %}
+  </section>
+
+  <section class="admin-block">
+    <h2>🗓️ Attendance History</h2>
+    {% if history %}
+    <div style="overflow-x:auto"><table class="attendance-table"><thead><tr><th>Date</th><th>Status</th></tr></thead><tbody>
+      {% for h in history %}
+      <tr><td>{{ h.date }}</td><td>{% if h.status == 'present' %}<span class="attendance-status-present">Present</span>{% else %}<span class="attendance-status-absent">Absent</span>{% endif %}</td></tr>
+      {% endfor %}
+    </tbody></table></div>
+    {% else %}
+    <p class="empty-note">Attendance has not been recorded yet.</p>
+    {% endif %}
+  </section>
+</main>
+<script>function markRead(){fetch('{{ url_for("student_notifications_read") }}',{method:'POST'}).then(()=>location.reload())}</script>
+</body></html>
